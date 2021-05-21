@@ -4,6 +4,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.BoxLayout;
@@ -18,9 +20,10 @@ import org.bouncycastle.openpgp.PGPException;
 public class GUI extends JFrame {
 	
 	private JFrame frame;
+	private KeyGenerator keyGenerator = new KeyGenerator();
 
 	public GUI() throws IOException, PGPException {
-		super("Open PGP");
+		super("PGP");
 
 	    frame = this;
 	    frame.setVisible(true);
@@ -52,12 +55,18 @@ public class GUI extends JFrame {
 		gbc_lblNewLabel.gridy = 1;
 		panel.add(lblNewLabel, gbc_lblNewLabel);
 		
-		JButton btnNewButton_1 = new JButton("Generisanje novog para klju\u010Deva");
+		JButton keyGeneratorButton = new JButton("Generisanje novog para klju\u010Deva");
 		GridBagConstraints gbc_btnNewButton_1 = new GridBagConstraints();
 		gbc_btnNewButton_1.insets = new Insets(0, 0, 5, 0);
 		gbc_btnNewButton_1.gridx = 0;
 		gbc_btnNewButton_1.gridy = 3;
-		panel.add(btnNewButton_1, gbc_btnNewButton_1);
+		panel.add(keyGeneratorButton, gbc_btnNewButton_1);
+		
+		keyGeneratorButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+            	keyGenerator.setVisible(true);
+            }
+        });
 		
 		JButton btnNewButton_2 = new JButton("Brisanje postoje\u0107eg para klju\u010Deva");
 		GridBagConstraints gbc_btnNewButton_2 = new GridBagConstraints();
