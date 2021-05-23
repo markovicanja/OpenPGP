@@ -20,10 +20,12 @@ import org.bouncycastle.openpgp.PGPException;
 public class GUI extends JFrame {
 	
 	private JFrame frame;
-	private KeyGenerator keyGenerator = new KeyGenerator();
+	private KeyGeneratorGUI keyGeneratorGUI;
 
-	public GUI() throws IOException, PGPException {
+	public GUI(String path) throws IOException, PGPException {
 		super("PGP");
+		
+		keyGeneratorGUI = new KeyGeneratorGUI(path);
 
 	    frame = this;
 	    frame.setVisible(true);
@@ -64,7 +66,7 @@ public class GUI extends JFrame {
 		
 		keyGeneratorButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-            	keyGenerator.setVisible(true);
+            	keyGeneratorGUI.setVisible(true);
             }
         });
 		
