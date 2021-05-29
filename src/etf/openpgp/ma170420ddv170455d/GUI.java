@@ -23,6 +23,7 @@ public class GUI extends JFrame {
 	private KeyGeneratorGUI keyGeneratorGUI;
 	private ShowKeysGUI showKeysGUI;
 	private KeyImportExportGUI keyImportExportGUI;
+	private SendMessageGUI sendMessageGUI;
 
 	public GUI(String path) throws IOException, PGPException {
 		super("PGP");
@@ -30,6 +31,7 @@ public class GUI extends JFrame {
 		keyGeneratorGUI = new KeyGeneratorGUI(path);
 		showKeysGUI = new ShowKeysGUI(path);
 		keyImportExportGUI = new KeyImportExportGUI(path);
+		sendMessageGUI = new SendMessageGUI(path);
 		
 	    frame = this;
 	    frame.setVisible(true);
@@ -107,12 +109,18 @@ public class GUI extends JFrame {
             }
         });
 		
-		JButton btnNewButton = new JButton("Slanje poruke");
+		JButton sendMessageButton = new JButton("Slanje poruke");
 		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
 		gbc_btnNewButton.insets = new Insets(0, 0, 5, 0);
 		gbc_btnNewButton.gridx = 0;
 		gbc_btnNewButton.gridy = 7;
-		panel.add(btnNewButton, gbc_btnNewButton);
+		panel.add(sendMessageButton, gbc_btnNewButton);
+		
+		sendMessageButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+            	sendMessageGUI.setVisible(true);
+            }
+        });
 		
 		JButton btnNewButton_5 = new JButton("Primanje poruke");
 		GridBagConstraints gbc_btnNewButton_5 = new GridBagConstraints();
