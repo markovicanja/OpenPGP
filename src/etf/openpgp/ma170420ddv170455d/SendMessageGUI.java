@@ -21,18 +21,11 @@ import javax.swing.JCheckBox;
 public class SendMessageGUI extends JFrame {
 	private JPanel contentPanel;
 	
-	private KeyGenerator keyGenerator;
 	private JTextField messagePathTextField;
 	private JTextField pathTextField;
 
-	public SendMessageGUI(String path) {
+	public SendMessageGUI() {
 		super("PGP");
-		
-		try {
-			keyGenerator = new KeyGenerator(path);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
 		
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(600, 300, 600, 450);
