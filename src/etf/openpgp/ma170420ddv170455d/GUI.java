@@ -22,12 +22,14 @@ public class GUI extends JFrame {
 	private JFrame frame;
 	private KeyGeneratorGUI keyGeneratorGUI;
 	private ShowKeysGUI showKeysGUI;
+	private KeyImportExportGUI keyImportExportGUI;
 
 	public GUI(String path) throws IOException, PGPException {
 		super("PGP");
 		
 		keyGeneratorGUI = new KeyGeneratorGUI(path);
 		showKeysGUI = new ShowKeysGUI(path);
+		keyImportExportGUI = new KeyImportExportGUI(path);
 		
 	    frame = this;
 	    frame.setVisible(true);
@@ -92,12 +94,18 @@ public class GUI extends JFrame {
             }
         });
 		
-		JButton btnNewButton_4 = new JButton("Uvoz i izvoz klju\u010Deva u .asc formatu");
+		JButton importExportButton = new JButton("Uvoz i izvoz klju\u010Deva u .asc formatu");
 		GridBagConstraints gbc_btnNewButton_4 = new GridBagConstraints();
 		gbc_btnNewButton_4.insets = new Insets(0, 0, 5, 0);
 		gbc_btnNewButton_4.gridx = 0;
 		gbc_btnNewButton_4.gridy = 6;
-		panel.add(btnNewButton_4, gbc_btnNewButton_4);
+		panel.add(importExportButton, gbc_btnNewButton_4);
+		
+		importExportButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+            	keyImportExportGUI.setVisible(true);
+            }
+        });
 		
 		JButton btnNewButton = new JButton("Slanje poruke");
 		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();

@@ -45,8 +45,8 @@ public class ShowKeysGUI extends JFrame {
 			e1.printStackTrace();
 		}  
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(600, 100, 500, 500);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		setBounds(600, 300, 600, 500);
 		contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPanel);

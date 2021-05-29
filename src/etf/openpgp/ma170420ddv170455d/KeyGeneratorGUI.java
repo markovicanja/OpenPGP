@@ -47,7 +47,7 @@ public class KeyGeneratorGUI extends JFrame {
 			e1.printStackTrace();
 		}
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(600, 300, 600, 450);
 		contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -158,25 +158,7 @@ public class KeyGeneratorGUI extends JFrame {
 		gbc_rdbtnNewRadioButton_2.gridy = 7;
 		contentPane.add(rsa4096, gbc_rdbtnNewRadioButton_2);
 		group.add(rsa4096);
-		
-		JRadioButton tripleDes = new JRadioButton("3DES");
-		GridBagConstraints gbc_rdbtnNewRadioButton_3 = new GridBagConstraints();
-		gbc_rdbtnNewRadioButton_3.anchor = GridBagConstraints.WEST;
-		gbc_rdbtnNewRadioButton_3.insets = new Insets(0, 0, 5, 5);
-		gbc_rdbtnNewRadioButton_3.gridx = 6;
-		gbc_rdbtnNewRadioButton_3.gridy = 8;
-		contentPane.add(tripleDes, gbc_rdbtnNewRadioButton_3);
-		group.add(tripleDes);
-		
-		JRadioButton cast5 = new JRadioButton("CAST5");
-		GridBagConstraints gbc_rdbtnNewRadioButton_4 = new GridBagConstraints();
-		gbc_rdbtnNewRadioButton_4.anchor = GridBagConstraints.WEST;
-		gbc_rdbtnNewRadioButton_4.insets = new Insets(0, 0, 5, 5);
-		gbc_rdbtnNewRadioButton_4.gridx = 6;
-		gbc_rdbtnNewRadioButton_4.gridy = 9;
-		contentPane.add(cast5, gbc_rdbtnNewRadioButton_4);
-		group.add(cast5);
-		
+
 		JButton button = new JButton("Generi\u0161i");
 		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
 		gbc_btnNewButton.anchor = GridBagConstraints.WEST;
@@ -187,14 +169,6 @@ public class KeyGeneratorGUI extends JFrame {
 		
 		button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	if (tripleDes.isSelected()) {
-            		keyGenerator.generate3DES();
-            		return;
-            	}
-            	if (cast5.isSelected()) {
-            		keyGenerator.generateCAST5();
-            		return;
-            	}
             	int keySize = (rsa1024.isSelected()? 1024 : (rsa2048.isSelected()? 2048 : 4096));
 				try {
 					keyGenerator.generateKeys(
