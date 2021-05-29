@@ -21,12 +21,14 @@ public class GUI extends JFrame {
 	
 	private JFrame frame;
 	private KeyGeneratorGUI keyGeneratorGUI;
+	private ShowKeysGUI showKeysGUI;
 
 	public GUI(String path) throws IOException, PGPException {
 		super("PGP");
 		
 		keyGeneratorGUI = new KeyGeneratorGUI(path);
-
+		showKeysGUI = new ShowKeysGUI(path);
+		
 	    frame = this;
 	    frame.setVisible(true);
 	    initialize();
@@ -77,14 +79,20 @@ public class GUI extends JFrame {
 		gbc_btnNewButton_2.gridy = 4;
 		panel.add(btnNewButton_2, gbc_btnNewButton_2);
 		
-		JButton btnNewButton_3 = new JButton("Uvoz i izvoz klju\u010Deva u .asc formatu");
-		GridBagConstraints gbc_btnNewButton_3 = new GridBagConstraints();
-		gbc_btnNewButton_3.insets = new Insets(0, 0, 5, 0);
-		gbc_btnNewButton_3.gridx = 0;
-		gbc_btnNewButton_3.gridy = 5;
-		panel.add(btnNewButton_3, gbc_btnNewButton_3);
+		JButton showKeysButton = new JButton("Prikaz prstena javnih i privatnih klju\u010Deva");
+		GridBagConstraints gbc_showKeysButton = new GridBagConstraints();
+		gbc_showKeysButton.insets = new Insets(0, 0, 5, 0);
+		gbc_showKeysButton.gridx = 0;
+		gbc_showKeysButton.gridy = 5;
+		panel.add(showKeysButton, gbc_showKeysButton);
 		
-		JButton btnNewButton_4 = new JButton("Prikaz prstena javnih i privatnih klju\u010Deva");
+		showKeysButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+            	showKeysGUI.setVisible(true);
+            }
+        });
+		
+		JButton btnNewButton_4 = new JButton("Uvoz i izvoz klju\u010Deva u .asc formatu");
 		GridBagConstraints gbc_btnNewButton_4 = new GridBagConstraints();
 		gbc_btnNewButton_4.insets = new Insets(0, 0, 5, 0);
 		gbc_btnNewButton_4.gridx = 0;

@@ -9,7 +9,9 @@ import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyPair;
 import org.bouncycastle.openpgp.PGPKeyRingGenerator;
 import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPPublicKeyRing;
 import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
+import org.bouncycastle.openpgp.PGPSecretKey;
 import org.bouncycastle.openpgp.PGPSecretKeyRing;
 import org.bouncycastle.openpgp.PGPSecretKeyRingCollection;
 import org.bouncycastle.openpgp.PGPSignature;
@@ -31,12 +33,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.util.Date;
+import java.util.ListIterator;
 
 public class KeyGenerator {
 	private PGPPublicKeyRingCollection publicKeyRingCollection;
@@ -47,7 +51,7 @@ public class KeyGenerator {
 	
 	public KeyGenerator(String path) throws IOException, PGPException {
 		publicKeyRingDirectory = path + "\\publicKeyRing.bin";
-		secretKeyRingDirectory = path + "\\secretcKeyRing.bin";
+		secretKeyRingDirectory = path + "\\secretKeyRing.bin";
 		
 		File publicKeyRingFile = new File(publicKeyRingDirectory);
 		if (publicKeyRingFile.exists()) {
@@ -68,13 +72,9 @@ public class KeyGenerator {
 		// key pair
 		KeyPairGenerator keyPairGeneratorRsa = KeyPairGenerator.getInstance("RSA");
 		keyPairGeneratorRsa.initialize(keySize);
-		KeyPair keyPair = keyPairGeneratorRsa.generateKeyPair();
-		 
-		// master key pair (KOJIM OVO ALGORITMOM TREBA??)
 		KeyPair masterKeyPair = keyPairGeneratorRsa.generateKeyPair();
-		
-		// I ovo isto?
-		PGPKeyPair pgpMasterKeyPair = new JcaPGPKeyPair(PGPPublicKey.RSA_ENCRYPT, masterKeyPair, new Date());
+		KeyPair keyPair = keyPairGeneratorRsa.generateKeyPair();
+		PGPKeyPair pgpMasterKeyPair = new JcaPGPKeyPair(PGPPublicKey.RSA_SIGN, masterKeyPair, new Date());
 		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(PGPPublicKey.RSA_ENCRYPT, keyPair, new Date());
 		 
 		// za hash
@@ -92,13 +92,62 @@ public class KeyGenerator {
 		keyRingGenerator.addSubKey(pgpKeyPair);
 		
 		PGPSecretKeyRing privateKeyRing = keyRingGenerator.generateSecretKeyRing();
-		 
+		
+		//zasto samo pamti privatni kljuc, jel to tako treba?
 		secretKeyRingCollection = PGPSecretKeyRingCollection.addSecretKeyRing(secretKeyRingCollection, privateKeyRing);
 		
 		OutputStream outputStream = new FileOutputStream(secretKeyRingDirectory);
-		BufferedOutputStream secretOut = new BufferedOutputStream(outputStream);
-		secretKeyRingCollection.encode(secretOut);
-		secretOut.close();
+		BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
+		secretKeyRingCollection.encode(bufferedOutputStream);
+		bufferedOutputStream.close();
+	}
+	
+	public PGPSecretKeyRing getPrivateRing(int index) {
+		PGPSecretKeyRing currentRing = null;
+		java.util.Iterator<PGPSecretKeyRing> iter = secretKeyRingCollection.getKeyRings();
+		for (int i = 0; i < index + 1; i++) {
+			if (!iter.hasNext()) return null;
+			currentRing = iter.next();
+		}
+		return currentRing;
+	}
+	
+	public PGPPublicKeyRing getPublicRing(int index) {
+		PGPPublicKeyRing currentRing = null;
+		java.util.Iterator<PGPPublicKeyRing> iter = publicKeyRingCollection.getKeyRings();
+		for (int i = 0; i < index + 1; i++) {
+			if (!iter.hasNext()) return null;
+			currentRing = iter.next();
+		}
+		return currentRing;
+	}
+	
+	//ovo ne radi sad
+	public void generate3DES() {
+		javax.crypto.KeyGenerator kg;
+		try {
+			kg = javax.crypto.KeyGenerator.getInstance("TripleDES");
+			kg.init(168);
+			Key symmetricKey = kg.generateKey();
+			 
+			PGPPublicKeyRing publicRing = new PGPPublicKeyRing(symmetricKey.getEncoded(), new JcaKeyFingerprintCalculator());
+			publicKeyRingCollection = PGPPublicKeyRingCollection.addPublicKeyRing(publicKeyRingCollection, publicRing);
+			
+			OutputStream outputStream = new FileOutputStream(publicKeyRingDirectory);
+			BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
+			publicKeyRingCollection.encode(bufferedOutputStream);
+			bufferedOutputStream.close();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void generateCAST5() {
+		
 	}
 
 }
