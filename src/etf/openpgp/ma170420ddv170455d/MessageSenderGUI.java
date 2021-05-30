@@ -4,6 +4,11 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
+import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPPublicKey;
+
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;
 import java.awt.GridBagConstraints;
@@ -11,6 +16,8 @@ import javax.swing.SwingConstants;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
 import java.awt.Font;
@@ -18,14 +25,22 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 
-public class SendMessageGUI extends JFrame {
+public class MessageSenderGUI extends JFrame {
 	private JPanel contentPanel;
 	
 	private JTextField messagePathTextField;
 	private JTextField pathTextField;
+	
+	private MessageSender messageSender;
+	
+	private PGPPublicKey[] encryptKeys;
+	private int privateKeyIndex;
+	private char[] password;
 
-	public SendMessageGUI() {
+	public MessageSenderGUI(KeyGenerator keyGenerator) {
 		super("PGP");
+		
+		messageSender = new MessageSender(keyGenerator);
 		
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(600, 300, 600, 450);
@@ -101,6 +116,12 @@ public class SendMessageGUI extends JFrame {
 		gbc_button.gridy = 4;
 		contentPane.add(authKeysButton, gbc_button);
 		
+		authKeysButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	// Choose privateKeyIndex, password
+            }
+        });	
+		
 		JCheckBox encryptCheckBox = new JCheckBox("Tajnost");
 		GridBagConstraints gbc_encryptCheckBox = new GridBagConstraints();
 		gbc_encryptCheckBox.anchor = GridBagConstraints.WEST;
@@ -116,6 +137,12 @@ public class SendMessageGUI extends JFrame {
 		gbc_encryptKeysButton.gridx = 7;
 		gbc_encryptKeysButton.gridy = 5;
 		contentPane.add(encryptKeysButton, gbc_encryptKeysButton);
+		
+		encryptKeysButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	// Choose encryptKeys
+            }
+        });	
 		
 		JLabel lblNewLabel_3 = new JLabel("Algoritam za enkripciju:");
 		GridBagConstraints gbc_lblNewLabel_3 = new GridBagConstraints();
@@ -171,7 +198,25 @@ public class SendMessageGUI extends JFrame {
 		
 		button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	// TODO
+            	int tag = -1;
+            	if (radioButton3DES.isSelected()) tag = SymmetricKeyAlgorithmTags.TRIPLE_DES;
+            	else if (radioButtonCAST5.isSelected()) tag = SymmetricKeyAlgorithmTags.CAST5;
+            	
+            	if (tag == -1 && encryptCheckBox.isSelected()) {
+            		System.err.println("Morate izabrati algotiram za sifrovanje");
+            		return;
+            	}
+
+            	try {
+					messageSender.sendMessage(messagePathTextField.getText(), pathTextField.getText(), 
+							authCheckBox.isSelected(), encryptCheckBox.isSelected(), tag,
+							zipCheckBox.isSelected(), radixCheckBox.isSelected(),
+							encryptKeys, privateKeyIndex, password);
+				} catch (PGPException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
             }
         });		
 	}

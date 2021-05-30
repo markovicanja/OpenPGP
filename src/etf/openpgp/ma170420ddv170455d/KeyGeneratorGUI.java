@@ -35,17 +35,9 @@ public class KeyGeneratorGUI extends JFrame {
 	private JTextField nameTextField;
 	private JTextField mailTextField;
 	private JTextField passwordTextField;
-	
-	private KeyGenerator keyGenerator;
 
-	public KeyGeneratorGUI(String path) {
+	public KeyGeneratorGUI(String path, KeyGenerator keyGenerator) {
 		super("PGP");
-		
-		try {
-			keyGenerator = new KeyGenerator(path);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
 		
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(600, 300, 600, 450);

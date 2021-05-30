@@ -23,16 +23,24 @@ public class GUI extends JFrame {
 	private KeyGeneratorGUI keyGeneratorGUI;
 	private ShowKeysGUI showKeysGUI;
 	private KeyImportExportGUI keyImportExportGUI;
-	private SendMessageGUI sendMessageGUI;
+	private MessageSenderGUI sendMessageGUI;
 	private ReceiveMessageGUI receiveMessageGUI;
+
+	private KeyGenerator keyGenerator;
 	
 	public GUI(String path) throws IOException, PGPException {
 		super("PGP");
 		
-		keyGeneratorGUI = new KeyGeneratorGUI(path);
+		try {
+			keyGenerator = new KeyGenerator(path);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
+		keyGeneratorGUI = new KeyGeneratorGUI(path, keyGenerator);
 		showKeysGUI = new ShowKeysGUI(path);
 		keyImportExportGUI = new KeyImportExportGUI(path);
-		sendMessageGUI = new SendMessageGUI();
+		sendMessageGUI = new MessageSenderGUI(keyGenerator);
 		receiveMessageGUI = new ReceiveMessageGUI();
 		
 	    frame = this;

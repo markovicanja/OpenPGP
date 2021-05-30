@@ -121,33 +121,5 @@ public class KeyGenerator {
 		}
 		return currentRing;
 	}
-	
-	//ovo ne radi sad
-	public void generate3DES() {
-		javax.crypto.KeyGenerator kg;
-		try {
-			kg = javax.crypto.KeyGenerator.getInstance("TripleDES");
-			kg.init(168);
-			Key symmetricKey = kg.generateKey();
-			 
-			PGPPublicKeyRing publicRing = new PGPPublicKeyRing(symmetricKey.getEncoded(), new JcaKeyFingerprintCalculator());
-			publicKeyRingCollection = PGPPublicKeyRingCollection.addPublicKeyRing(publicKeyRingCollection, publicRing);
-			
-			OutputStream outputStream = new FileOutputStream(publicKeyRingDirectory);
-			BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
-			publicKeyRingCollection.encode(bufferedOutputStream);
-			bufferedOutputStream.close();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void generateCAST5() {
-		
-	}
 
 }
