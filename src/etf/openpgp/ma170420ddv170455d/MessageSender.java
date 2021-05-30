@@ -6,6 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import javax.swing.JOptionPane;
+
+import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.bcpg.CompressionAlgorithmTags;
 import org.bouncycastle.openpgp.PGPCompressedDataGenerator;
@@ -42,6 +45,16 @@ public class MessageSender {
     	bOut.close();
         return message;
     }
+    
+    public byte[] radixConversion(byte[] message) throws IOException {
+    	ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+        ArmoredOutputStream armoredOutputStream = new ArmoredOutputStream(byteOutputStream);
+        armoredOutputStream.write(message);
+        armoredOutputStream.close();
+        message = byteOutputStream.toByteArray();        
+        byteOutputStream.close();
+        return message;
+    }
 	
 	public void sendMessage(String messagePath, String destPath, boolean auth, boolean encrypt, int encryptAlgorithm,
 			boolean zip, boolean radix, PGPPublicKey[] encryptionKeys, int privateKeyIndex, char[] pass) throws PGPException, IOException  {		
@@ -50,7 +63,7 @@ public class MessageSender {
 		if (auth) {
         	PGPSecretKeyRing privateKeyRing = keyGenerator.getPrivateRing(privateKeyIndex);        	
         	if (privateKeyRing == null) {
-        		System.err.println("Ne postoji kljuc za potpisivanje");
+        		JOptionPane.showMessageDialog(null, "Ne postoji kljuc za potpisivanje");
         		return;
         	}
         	
@@ -100,6 +113,14 @@ public class MessageSender {
 		
 		if (zip) {
 			message = compressFile(message);
+		}
+		
+		if (encrypt) {
+			
+		}
+		
+		if (radix) {
+			message = radixConversion(message);
 		}
 	}
 }

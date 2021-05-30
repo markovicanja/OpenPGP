@@ -11,6 +11,8 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.GridBagConstraints;
 import javax.swing.SwingConstants;
 import java.awt.Insets;
@@ -203,7 +205,7 @@ public class MessageSenderGUI extends JFrame {
             	else if (radioButtonCAST5.isSelected()) tag = SymmetricKeyAlgorithmTags.CAST5;
             	
             	if (tag == -1 && encryptCheckBox.isSelected()) {
-            		System.err.println("Morate izabrati algotiram za sifrovanje");
+            		JOptionPane.showMessageDialog(null, "Morate izabrati algotiram za sifrovanje");
             		return;
             	}
 
