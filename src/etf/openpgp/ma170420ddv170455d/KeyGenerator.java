@@ -26,6 +26,7 @@ import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPDigestCalculatorProviderBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPKeyPair;
+import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyEncryptorBuilder;
 
 import java.io.BufferedOutputStream;
@@ -46,14 +47,23 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.ListIterator;
 
+import javax.swing.JOptionPane;
+
 public class KeyGenerator {
 	private PGPPublicKeyRingCollection publicKeyRingCollection;
 	private PGPSecretKeyRingCollection secretKeyRingCollection;
 	
 	private static File publicKeyRingDirectory;
     private static File secretKeyRingDirectory;
+    
+    String path;
 	
 	public KeyGenerator(String path) throws IOException, PGPException {
+		this.path = path;
+		initialize(this.path);
+	}
+	
+	public void initialize(String path) throws FileNotFoundException, IOException, PGPException {
 		publicKeyRingDirectory = new File(path + "\\publicKeyRing.asc");
 		secretKeyRingDirectory = new File(path + "\\secretKeyRing.asc");
 		
@@ -99,6 +109,8 @@ public class KeyGenerator {
         ArmoredOutputStream aos2 = new ArmoredOutputStream(new FileOutputStream(publicKeyRingDirectory));
         publicKeyRingCollection.encode(aos2);
         aos2.close();
+        
+        initialize(path);
 	}
 	
 	public PGPSecretKeyRing getPrivateRing(int index) {
@@ -126,7 +138,7 @@ public class KeyGenerator {
 //		exportPublicKey(id);
 //	}
 	
-	public PGPPublicKeyRing findPublicRing(long id) throws Exception {
+	public PGPPublicKeyRing findPublicRing(long id) {
 		Iterator<PGPPublicKeyRing> iter = publicKeyRingCollection.getKeyRings();
 		PGPPublicKeyRing ring = null;
 		boolean foundKey = false;
@@ -141,11 +153,13 @@ public class KeyGenerator {
 				}
 			}
 		}
-		if (!foundKey) throw new Exception("Nema takvog kljuca");
+		if (!foundKey) {
+			return null;
+		}
 		else return ring;
 	}
 	
-	public PGPSecretKeyRing findSecretRing(long id) throws Exception {
+	public PGPSecretKeyRing findSecretRing(long id) {
 		Iterator<PGPSecretKeyRing> iter = secretKeyRingCollection.getKeyRings();
 		PGPSecretKeyRing ring = null;
 		boolean foundKey = false;
@@ -160,16 +174,21 @@ public class KeyGenerator {
 				}
 			}
 		}
-		if (!foundKey) throw new Exception("Nema takvog kljuca");
+		if (!foundKey) {
+			return null;
+		}
 		else return ring;
 	}
 	
 	public void exportPublicKey(long id, String path) {
 		try {
 			PGPPublicKeyRing ring = findPublicRing(id);
-			ArmoredOutputStream aos = new ArmoredOutputStream(new FileOutputStream(new File(path)));
-			ring.encode(aos);
-            aos.close();
+			if (ring == null) JOptionPane.showMessageDialog(null, "Nema takvog kljuca");
+			else {
+				ArmoredOutputStream aos = new ArmoredOutputStream(new FileOutputStream(new File(path)));
+				ring.encode(aos);
+	            aos.close();	
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -179,9 +198,12 @@ public class KeyGenerator {
 	public void exportPrivateKey(long id, String path) {
 		try {
 			PGPSecretKeyRing ring = findSecretRing(id);
-			ArmoredOutputStream aos = new ArmoredOutputStream(new FileOutputStream(new File(path)));
-			ring.encode(aos);
-            aos.close();
+			if (ring == null) JOptionPane.showMessageDialog(null, "Nema takvog kljuca");
+			else {
+				ArmoredOutputStream aos = new ArmoredOutputStream(new FileOutputStream(new File(path)));
+				ring.encode(aos);
+	            aos.close();	
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -236,6 +258,35 @@ public class KeyGenerator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public boolean deleteKey(long id, String password, boolean bothKeys) throws FileNotFoundException, IOException {
+		try {
+			PGPSecretKeyRing ringSecret = findSecretRing(id);
+			if (ringSecret != null && bothKeys) {
+				ringSecret.getSecretKey().extractPrivateKey(
+				           new JcePBESecretKeyDecryptorBuilder()
+				           .setProvider("BC")
+				           .build(password.toCharArray()));
+				secretKeyRingCollection = PGPSecretKeyRingCollection
+						.removeSecretKeyRing(secretKeyRingCollection, ringSecret);
+				ArmoredOutputStream aos2 = new ArmoredOutputStream(new FileOutputStream(secretKeyRingDirectory));
+				secretKeyRingCollection.encode(aos2);
+		        aos2.close();
+			}
+			PGPPublicKeyRing ringPublic = findPublicRing(id);
+			if (ringPublic != null) {
+				publicKeyRingCollection = PGPPublicKeyRingCollection
+						.removePublicKeyRing(publicKeyRingCollection, ringPublic);
+				ArmoredOutputStream aos2 = new ArmoredOutputStream(new FileOutputStream(publicKeyRingDirectory));
+		        publicKeyRingCollection.encode(aos2);
+		        aos2.close();
+			}
+			initialize(path);
+			return true;
+		} catch (PGPException pge) {
+			return false;
+		} 
 	}
 
 }

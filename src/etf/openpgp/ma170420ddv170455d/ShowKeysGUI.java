@@ -8,11 +8,14 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ListIterator;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -37,8 +40,12 @@ public class ShowKeysGUI extends JFrame {
 	private JTextPane privateKeyInfo[][];
 	private JTextPane publicKeyInfo[][];
 	
+	public static ShowKeysGUI instance;
+	
 	public ShowKeysGUI(String path) {
 		super("PGP");
+		
+		instance = this;
 		
 		try {
 			keyGenerator = new KeyGenerator(path);
@@ -173,6 +180,39 @@ public class ShowKeysGUI extends JFrame {
 				showPublicKey('-');
 			}
 		});
+		
+		deletePrivate.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (currentPrivateRing == null) return;
+				java.util.Iterator<PGPSecretKey> iterPrivate = currentPrivateRing.getSecretKeys();
+				PGPSecretKey currentPrivateKey = iterPrivate.next();
+				long id = currentPrivateKey.getKeyID();
+				PasswordGUI passwordGui = new PasswordGUI(id, PasswordGUI.DELETE, instance, keyGenerator);
+				passwordGui.setTitle("ID: " + Long.toString(id));
+				passwordGui.setVisible(true);	
+			}
+		});
+		
+		deletePublic.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (currentPublicRing == null) return;
+				java.util.Iterator<PGPPublicKey> iterPrivate = currentPublicRing.getPublicKeys();
+				PGPPublicKey currentPublicKey = iterPrivate.next();
+				long id = currentPublicKey.getKeyID();
+				try {
+					keyGenerator.deleteKey(id, "", false);
+					reset();
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}	
+			}
+		});
 	}
 	
 	public void showPrivateKey(char sign) {
@@ -236,6 +276,13 @@ public class ShowKeysGUI extends JFrame {
 			publicKeyInfo[1][1].setText(currentPublicKey.getUserIDs().next());
 			publicKeyInfo[2][1].setText(String.valueOf(currentPublicKey.getCreationTime()));
 		}
+	}
+	
+	public void reset() {
+		currentPrivateIndex = -1;
+		currentPublicIndex = -1;
+		showPrivateKey('+');
+		showPublicKey('+');
 	}
 	
 }
