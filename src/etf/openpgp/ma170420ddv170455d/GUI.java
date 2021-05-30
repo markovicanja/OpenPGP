@@ -78,13 +78,6 @@ public class GUI extends JFrame {
             }
         });
 		
-		JButton btnNewButton_2 = new JButton("Brisanje postoje\u0107eg para klju\u010Deva");
-		GridBagConstraints gbc_btnNewButton_2 = new GridBagConstraints();
-		gbc_btnNewButton_2.insets = new Insets(0, 0, 5, 0);
-		gbc_btnNewButton_2.gridx = 0;
-		gbc_btnNewButton_2.gridy = 4;
-		panel.add(btnNewButton_2, gbc_btnNewButton_2);
-		
 		JButton showKeysButton = new JButton("Prikaz prstena javnih i privatnih klju\u010Deva");
 		GridBagConstraints gbc_showKeysButton = new GridBagConstraints();
 		gbc_showKeysButton.insets = new Insets(0, 0, 5, 0);
