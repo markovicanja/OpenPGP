@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
@@ -33,8 +34,8 @@ public class ShowKeysGUI extends JFrame {
 	private int currentPublicIndex = -1;
 	
 	private JPanel contentPanel;
-	private JLabel privateKeyInfo[][];
-	private JLabel publicKeyInfo[][];
+	private JTextPane privateKeyInfo[][];
+	private JTextPane publicKeyInfo[][];
 	
 	public ShowKeysGUI(String path) {
 		super("PGP");
@@ -64,15 +65,18 @@ public class ShowKeysGUI extends JFrame {
 		
 		JPanel keyInfoPrivate = new JPanel();
 		keyInfoPrivate.setLayout(new GridLayout(3, 3));
-		keyInfoPrivate.setBorder(new EmptyBorder(0, 30, 0, 0));
+		keyInfoPrivate.setBorder(new EmptyBorder(10, 30, 0, 0));
 		
-		privateKeyInfo = new JLabel[3][2];
+		privateKeyInfo = new JTextPane[3][2];
 		for (int i = 0; i < 3; i++) {
 	    	for (int j = 0; j < 2; j++)
 	    	{
-	    		privateKeyInfo[i][j] = new JLabel();
+	    		privateKeyInfo[i][j] = new JTextPane();
 	    		privateKeyInfo[i][j].setText("/");
 	    		keyInfoPrivate.add(privateKeyInfo[i][j]);
+	    		privateKeyInfo[i][j].setEditable(false); // as before
+	    		privateKeyInfo[i][j].setBackground(null); // this is the same as a JLabel
+	    		privateKeyInfo[i][j].setBorder(null);
 	    		if (j == 1) keyInfoPrivate.add(new JLabel(""));
 	    	}
 	    }
@@ -105,15 +109,19 @@ public class ShowKeysGUI extends JFrame {
 		
 		JPanel keyInfoPublic = new JPanel();
 		keyInfoPublic.setLayout(new GridLayout(3, 3));
-		keyInfoPublic.setBorder(new EmptyBorder(0, 30, 0, 0));
+		keyInfoPublic.setBorder(new EmptyBorder(10, 30, 0, 0));
 		
-		publicKeyInfo = new JLabel[3][2];
+		publicKeyInfo = new JTextPane[3][2];
 		for (int i = 0; i < 3; i++) {
 	    	for (int j = 0; j < 2; j++)
 	    	{
-	    		publicKeyInfo[i][j] = new JLabel();
+	    		
+	    		publicKeyInfo[i][j] = new JTextPane();
 	    		publicKeyInfo[i][j].setText("/");
 	    		keyInfoPublic.add(publicKeyInfo[i][j]);
+	    		publicKeyInfo[i][j].setEditable(false); // as before
+	    		publicKeyInfo[i][j].setBackground(null); // this is the same as a JLabel
+	    		publicKeyInfo[i][j].setBorder(null);
 	    		if (j == 1) keyInfoPublic.add(new JLabel(""));
 	    	}
 	    }

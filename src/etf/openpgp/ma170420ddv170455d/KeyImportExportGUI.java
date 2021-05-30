@@ -129,19 +129,38 @@ public class KeyImportExportGUI extends JFrame {
 		contentPane.add(privateRB, gbc_rdbtnNewRadioButton_1);
 		group.add(privateRB);
 		
-		JButton button = new JButton("Gotovo");
-		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
-		gbc_btnNewButton.anchor = GridBagConstraints.WEST;
-		gbc_btnNewButton.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton.gridx = 6;
-		gbc_btnNewButton.gridy = 8;
-		contentPane.add(button, gbc_btnNewButton);
+		JButton buttonImport = new JButton("Uvoz");
+		GridBagConstraints gbc_btnNewButton1 = new GridBagConstraints();
+		gbc_btnNewButton1.anchor = GridBagConstraints.WEST;
+		gbc_btnNewButton1.insets = new Insets(0, 0, 5, 5);
+		gbc_btnNewButton1.gridx = 6;
+		gbc_btnNewButton1.gridy = 8;
+		contentPane.add(buttonImport, gbc_btnNewButton1);
 		
-		button.addActionListener(new ActionListener() {
+		JButton buttonExport = new JButton("Izvoz");
+		GridBagConstraints gbc_btnNewButton2 = new GridBagConstraints();
+		gbc_btnNewButton2.anchor = GridBagConstraints.WEST;
+		gbc_btnNewButton2.insets = new Insets(0, 0, 5, 5);
+		gbc_btnNewButton2.gridx = 6;
+		gbc_btnNewButton2.gridy = 9;
+		contentPane.add(buttonExport, gbc_btnNewButton2);
+		
+		buttonImport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String path = pathTextField.getText();
+				if (privateRB.isSelected()) keyGenerator.importPrivateKey(path);
+            	else keyGenerator.importPublicKey(path);
+			}
+		});
+		
+		buttonExport.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	// TODO
+            	String path = pathTextField.getText();
+            	long id = Long.parseLong(idTextField.getText());
+            	if (privateRB.isSelected()) keyGenerator.exportPrivateKey(id, path);
+            	else keyGenerator.exportPublicKey(id, path);
             }
-        });		
+        });
 	}
 
 }
