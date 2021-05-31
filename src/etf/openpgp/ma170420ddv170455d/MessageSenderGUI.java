@@ -121,6 +121,8 @@ public class MessageSenderGUI extends JFrame {
 		authKeysButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	// Choose privateKeyIndex, password
+            	ChoosePrivateKeyGUI choosePrivateKeyGUI = new ChoosePrivateKeyGUI(keyGenerator);
+            	choosePrivateKeyGUI.setVisible(true);
             }
         });	
 		
