@@ -19,6 +19,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.security.NoSuchProviderException;
 
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
@@ -36,9 +37,7 @@ public class MessageSenderGUI extends JFrame {
 	private JTextField passwordField;
 	
 	private MessageSender messageSender;
-	
-	private PGPPublicKey[] encryptKeys;
-	
+
 	public void setPrivateKeyId(String keyId) {
 		keyIDField.setText(keyId);
 	}
@@ -203,6 +202,7 @@ public class MessageSenderGUI extends JFrame {
 		gbc_radioButton3DES.gridx = 7;
 		gbc_radioButton3DES.gridy = 11;
 		contentPane.add(radioButton3DES, gbc_radioButton3DES);
+		group.add(radioButton3DES);
 		
 		JRadioButton radioButtonCAST5 = new JRadioButton("CAST5");
 		GridBagConstraints gbc_radioButtonCAST5 = new GridBagConstraints();
@@ -211,6 +211,7 @@ public class MessageSenderGUI extends JFrame {
 		gbc_radioButtonCAST5.gridx = 7;
 		gbc_radioButtonCAST5.gridy = 12;
 		contentPane.add(radioButtonCAST5, gbc_radioButtonCAST5);
+		group.add(radioButtonCAST5);
 		
 		JCheckBox zipCheckBox = new JCheckBox("Zip kompresija");
 		GridBagConstraints gbc_zipCheckBox = new GridBagConstraints();
@@ -248,13 +249,15 @@ public class MessageSenderGUI extends JFrame {
             	}
 
             	try {
-            		char[] password = passwordField.getText().toCharArray();  
+            		char[] password = passwordField.getText().toCharArray();         			
 					messageSender.sendMessage(messagePathTextField.getText(), pathTextField.getText(), 
 							authCheckBox.isSelected(), encryptCheckBox.isSelected(), tag,
 							zipCheckBox.isSelected(), radixCheckBox.isSelected(), password);
 				} catch (PGPException e1) {
 					e1.printStackTrace();
 				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (NoSuchProviderException e1) {
 					e1.printStackTrace();
 				}
             }
