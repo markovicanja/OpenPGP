@@ -31,6 +31,10 @@ public class MessageSender {
 	
 	private byte[] message;
 	
+	private long privateKeyID;
+	
+	private PGPPublicKey[] encryptionKeys;
+	
 	public MessageSender(KeyGenerator keyGenerator) {
 		this.keyGenerator = keyGenerator;
 	}
@@ -57,11 +61,11 @@ public class MessageSender {
     }
 	
 	public void sendMessage(String messagePath, String destPath, boolean auth, boolean encrypt, int encryptAlgorithm,
-			boolean zip, boolean radix, PGPPublicKey[] encryptionKeys, int privateKeyIndex, char[] pass) throws PGPException, IOException  {		
+			boolean zip, boolean radix, char[] pass) throws PGPException, IOException  {		
 		message = null;
 		
 		if (auth) {
-        	PGPSecretKeyRing privateKeyRing = keyGenerator.getPrivateRing(privateKeyIndex);        	
+        	PGPSecretKeyRing privateKeyRing = keyGenerator.findSecretRing(privateKeyID);        	
         	if (privateKeyRing == null) {
         		JOptionPane.showMessageDialog(null, "Ne postoji kljuc za potpisivanje");
         		return;
@@ -123,4 +127,16 @@ public class MessageSender {
 			message = radixConversion(message);
 		}
 	}
+	
+	public void setPrivateKeyID(long keyId) {
+		privateKeyID = keyId;
+	}
+	
+	public void setEncryptionKeys(PGPPublicKey[] keys) {
+		encryptionKeys = keys;
+		for (PGPPublicKey key: keys) {
+			System.out.println(key.getKeyID());
+		}
+	}
+	
 }

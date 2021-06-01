@@ -32,12 +32,16 @@ public class MessageSenderGUI extends JFrame {
 	
 	private JTextField messagePathTextField;
 	private JTextField pathTextField;
+	private JTextField keyIDField;
+	private JTextField passwordField;
 	
 	private MessageSender messageSender;
 	
 	private PGPPublicKey[] encryptKeys;
-	private int privateKeyIndex;
-	private char[] password;
+	
+	public void setPrivateKeyId(String keyId) {
+		keyIDField.setText(keyId);
+	}
 
 	public MessageSenderGUI(KeyGenerator keyGenerator) {
 		super("PGP");
@@ -62,18 +66,20 @@ public class MessageSenderGUI extends JFrame {
 		contentPanel.add(lblNewLabel, BorderLayout.NORTH);
 
 		GridBagLayout gbl_contentPane = new GridBagLayout();
-		gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPane.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
+		
+		ButtonGroup group = new ButtonGroup();
 		
 		JLabel lblNewLabel_1 = new JLabel("Putanja poruke za slanje:");
 		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
 		gbc_lblNewLabel_1.anchor = GridBagConstraints.WEST;
 		gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNewLabel_1.gridx = 5;
-		gbc_lblNewLabel_1.gridy = 2;
+		gbc_lblNewLabel_1.gridy = 5;
 		contentPane.add(lblNewLabel_1, gbc_lblNewLabel_1);
 		
 		messagePathTextField = new JTextField();
@@ -81,7 +87,7 @@ public class MessageSenderGUI extends JFrame {
 		gbc_messagePathTextField.insets = new Insets(0, 0, 5, 5);
 		gbc_messagePathTextField.fill = GridBagConstraints.HORIZONTAL;
 		gbc_messagePathTextField.gridx = 7;
-		gbc_messagePathTextField.gridy = 2;
+		gbc_messagePathTextField.gridy = 5;
 		contentPane.add(messagePathTextField, gbc_messagePathTextField);
 		messagePathTextField.setColumns(10);
 		
@@ -90,16 +96,16 @@ public class MessageSenderGUI extends JFrame {
 		gbc_lblNewLabel_2.anchor = GridBagConstraints.WEST;
 		gbc_lblNewLabel_2.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNewLabel_2.gridx = 5;
-		gbc_lblNewLabel_2.gridy = 3;
+		gbc_lblNewLabel_2.gridy = 6;
 		contentPane.add(lblNewLabel_2, gbc_lblNewLabel_2);
 		
 		pathTextField = new JTextField();
-		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
-		gbc_textField_1.insets = new Insets(0, 0, 5, 5);
-		gbc_textField_1.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_1.gridx = 7;
-		gbc_textField_1.gridy = 3;
-		contentPane.add(pathTextField, gbc_textField_1);
+		GridBagConstraints gbc_textField_1_1_1 = new GridBagConstraints();
+		gbc_textField_1_1_1.insets = new Insets(0, 0, 5, 5);
+		gbc_textField_1_1_1.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textField_1_1_1.gridx = 7;
+		gbc_textField_1_1_1.gridy = 6;
+		contentPane.add(pathTextField, gbc_textField_1_1_1);
 		pathTextField.setColumns(10);
 		
 		JCheckBox authCheckBox = new JCheckBox("Autentikacija");
@@ -107,7 +113,7 @@ public class MessageSenderGUI extends JFrame {
 		gbc_authCheckBox.anchor = GridBagConstraints.WEST;
 		gbc_authCheckBox.insets = new Insets(0, 0, 5, 5);
 		gbc_authCheckBox.gridx = 5;
-		gbc_authCheckBox.gridy = 4;
+		gbc_authCheckBox.gridy = 7;
 		contentPane.add(authCheckBox, gbc_authCheckBox);
 		
 		JButton authKeysButton = new JButton("Izaberi klju\u010D");
@@ -115,23 +121,56 @@ public class MessageSenderGUI extends JFrame {
 		gbc_button.anchor = GridBagConstraints.WEST;
 		gbc_button.insets = new Insets(0, 0, 5, 5);
 		gbc_button.gridx = 7;
-		gbc_button.gridy = 4;
+		gbc_button.gridy = 7;
 		contentPane.add(authKeysButton, gbc_button);
 		
 		authKeysButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	// Choose privateKeyIndex, password
-            	ChoosePrivateKeyGUI choosePrivateKeyGUI = new ChoosePrivateKeyGUI(keyGenerator);
+            	ChoosePrivateKeyGUI choosePrivateKeyGUI = new ChoosePrivateKeyGUI(keyGenerator, messageSender, MessageSenderGUI.this);
             	choosePrivateKeyGUI.setVisible(true);
             }
         });	
+		
+		JLabel lblNewLabel_5 = new JLabel("ID izabranog klju\u010Da:");
+		GridBagConstraints gbc_lblNewLabel_5 = new GridBagConstraints();
+		gbc_lblNewLabel_5.anchor = GridBagConstraints.WEST;
+		gbc_lblNewLabel_5.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_5.gridx = 5;
+		gbc_lblNewLabel_5.gridy = 8;
+		contentPane.add(lblNewLabel_5, gbc_lblNewLabel_5);
+		
+		keyIDField = new JTextField();
+		GridBagConstraints gbc_keyIDField = new GridBagConstraints();
+		gbc_keyIDField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_keyIDField.insets = new Insets(0, 0, 5, 5);
+		gbc_keyIDField.gridx = 7;
+		gbc_keyIDField.gridy = 8;
+		contentPane.add(keyIDField, gbc_keyIDField);
+		keyIDField.setColumns(10);
+		
+		JLabel lblNewLabel_4 = new JLabel("Lozinka za privatni klju\u010D:");
+		GridBagConstraints gbc_lblNewLabel_4 = new GridBagConstraints();
+		gbc_lblNewLabel_4.anchor = GridBagConstraints.WEST;
+		gbc_lblNewLabel_4.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_4.gridx = 5;
+		gbc_lblNewLabel_4.gridy = 9;
+		contentPane.add(lblNewLabel_4, gbc_lblNewLabel_4);
+		
+		passwordField = new JTextField();
+		GridBagConstraints gbc_passwordField = new GridBagConstraints();
+		gbc_passwordField.insets = new Insets(0, 0, 5, 5);
+		gbc_passwordField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_passwordField.gridx = 7;
+		gbc_passwordField.gridy = 9;
+		contentPane.add(passwordField, gbc_passwordField);
+		passwordField.setColumns(10);
 		
 		JCheckBox encryptCheckBox = new JCheckBox("Tajnost");
 		GridBagConstraints gbc_encryptCheckBox = new GridBagConstraints();
 		gbc_encryptCheckBox.anchor = GridBagConstraints.WEST;
 		gbc_encryptCheckBox.insets = new Insets(0, 0, 5, 5);
 		gbc_encryptCheckBox.gridx = 5;
-		gbc_encryptCheckBox.gridy = 5;
+		gbc_encryptCheckBox.gridy = 10;
 		contentPane.add(encryptCheckBox, gbc_encryptCheckBox);
 		
 		JButton encryptKeysButton = new JButton("Izaberi klju\u010Deve");
@@ -139,12 +178,13 @@ public class MessageSenderGUI extends JFrame {
 		gbc_encryptKeysButton.anchor = GridBagConstraints.WEST;
 		gbc_encryptKeysButton.insets = new Insets(0, 0, 5, 5);
 		gbc_encryptKeysButton.gridx = 7;
-		gbc_encryptKeysButton.gridy = 5;
+		gbc_encryptKeysButton.gridy = 10;
 		contentPane.add(encryptKeysButton, gbc_encryptKeysButton);
 		
 		encryptKeysButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	// Choose encryptKeys
+            	ChoosePublicKeyGUI choosePublicKeyGUI = new ChoosePublicKeyGUI(keyGenerator, messageSender);
+            	choosePublicKeyGUI.setVisible(true);
             }
         });	
 		
@@ -153,35 +193,31 @@ public class MessageSenderGUI extends JFrame {
 		gbc_lblNewLabel_3.anchor = GridBagConstraints.WEST;
 		gbc_lblNewLabel_3.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNewLabel_3.gridx = 5;
-		gbc_lblNewLabel_3.gridy = 7;
+		gbc_lblNewLabel_3.gridy = 11;
 		contentPane.add(lblNewLabel_3, gbc_lblNewLabel_3);
-		
-		ButtonGroup group = new ButtonGroup();
 		
 		JRadioButton radioButton3DES = new JRadioButton("3DES");
 		GridBagConstraints gbc_radioButton3DES = new GridBagConstraints();
 		gbc_radioButton3DES.anchor = GridBagConstraints.WEST;
 		gbc_radioButton3DES.insets = new Insets(0, 0, 5, 5);
 		gbc_radioButton3DES.gridx = 7;
-		gbc_radioButton3DES.gridy = 7;
+		gbc_radioButton3DES.gridy = 11;
 		contentPane.add(radioButton3DES, gbc_radioButton3DES);
-		group.add(radioButton3DES);
 		
 		JRadioButton radioButtonCAST5 = new JRadioButton("CAST5");
 		GridBagConstraints gbc_radioButtonCAST5 = new GridBagConstraints();
 		gbc_radioButtonCAST5.anchor = GridBagConstraints.WEST;
 		gbc_radioButtonCAST5.insets = new Insets(0, 0, 5, 5);
 		gbc_radioButtonCAST5.gridx = 7;
-		gbc_radioButtonCAST5.gridy = 8;
+		gbc_radioButtonCAST5.gridy = 12;
 		contentPane.add(radioButtonCAST5, gbc_radioButtonCAST5);
-		group.add(radioButtonCAST5);
 		
 		JCheckBox zipCheckBox = new JCheckBox("Zip kompresija");
 		GridBagConstraints gbc_zipCheckBox = new GridBagConstraints();
 		gbc_zipCheckBox.anchor = GridBagConstraints.WEST;
 		gbc_zipCheckBox.insets = new Insets(0, 0, 5, 5);
 		gbc_zipCheckBox.gridx = 5;
-		gbc_zipCheckBox.gridy = 9;
+		gbc_zipCheckBox.gridy = 13;
 		contentPane.add(zipCheckBox, gbc_zipCheckBox);
 		
 		JCheckBox radixCheckBox = new JCheckBox("Radix64 konverzija");
@@ -189,7 +225,7 @@ public class MessageSenderGUI extends JFrame {
 		gbc_radixCheckBox.anchor = GridBagConstraints.WEST;
 		gbc_radixCheckBox.insets = new Insets(0, 0, 5, 5);
 		gbc_radixCheckBox.gridx = 5;
-		gbc_radixCheckBox.gridy = 10;
+		gbc_radixCheckBox.gridy = 14;
 		contentPane.add(radixCheckBox, gbc_radixCheckBox);
 		
 		JButton button = new JButton("Po\u0161alji");
@@ -197,8 +233,8 @@ public class MessageSenderGUI extends JFrame {
 		gbc_button1.anchor = GridBagConstraints.WEST;
 		gbc_button1.insets = new Insets(0, 0, 5, 5);
 		gbc_button1.gridx = 7;
-		gbc_button1.gridy = 11;
-		contentPane.add(button, gbc_button1);				
+		gbc_button1.gridy = 15;
+		contentPane.add(button, gbc_button1);						
 		
 		button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -212,10 +248,10 @@ public class MessageSenderGUI extends JFrame {
             	}
 
             	try {
+            		char[] password = passwordField.getText().toCharArray();  
 					messageSender.sendMessage(messagePathTextField.getText(), pathTextField.getText(), 
 							authCheckBox.isSelected(), encryptCheckBox.isSelected(), tag,
-							zipCheckBox.isSelected(), radixCheckBox.isSelected(),
-							encryptKeys, privateKeyIndex, password);
+							zipCheckBox.isSelected(), radixCheckBox.isSelected(), password);
 				} catch (PGPException e1) {
 					e1.printStackTrace();
 				} catch (IOException e1) {

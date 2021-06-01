@@ -15,6 +15,8 @@ import org.bouncycastle.openpgp.operator.bc.BcPGPKeyPair;
 
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.GridBagConstraints;
 import javax.swing.SwingConstants;
 import java.awt.Insets;
@@ -165,6 +167,7 @@ public class KeyGeneratorGUI extends JFrame {
 				try {
 					keyGenerator.generateKeys(
 							nameTextField.getText(), mailTextField.getText(), passwordTextField.getText(), keySize);
+					JOptionPane.showMessageDialog(null, "Kljucevi su generisani!");
 				} catch (Exception exception) {
 					exception.printStackTrace();
 				}

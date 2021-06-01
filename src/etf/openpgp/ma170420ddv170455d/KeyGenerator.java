@@ -190,7 +190,6 @@ public class KeyGenerator {
 	            aos.close();	
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -205,7 +204,6 @@ public class KeyGenerator {
 	            aos.close();	
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -224,13 +222,10 @@ public class KeyGenerator {
 		        aos2.close();
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (PGPException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -249,13 +244,10 @@ public class KeyGenerator {
 		        aos2.close();
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (PGPException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

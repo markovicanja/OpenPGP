@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -12,13 +13,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 
-import org.bouncycastle.openpgp.PGPSecretKey;
-import org.bouncycastle.openpgp.PGPSecretKeyRing;
+import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPPublicKeyRing;
 
-public class ChoosePrivateKeyGUI extends JFrame {
+public class ChoosePublicKeyGUI extends JFrame {
 	private JPanel contentPanel;
 
-	public ChoosePrivateKeyGUI(KeyGenerator keyGenerator, MessageSender messageSender, MessageSenderGUI messageSenderGUI) {
+	public ChoosePublicKeyGUI(KeyGenerator keyGenerator, MessageSender messageSender) {
 		super("PGP");
 		
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -30,10 +31,10 @@ public class ChoosePrivateKeyGUI extends JFrame {
 		ArrayList<ArrayList<String>> lista = new ArrayList<>();
 	    
 	    for (int i = 0; i < 100; i++) {
-	    	PGPSecretKeyRing keyRing = keyGenerator.getPrivateRing(i);
+	    	PGPPublicKeyRing keyRing = keyGenerator.getPublicRing(i);
 	    	if (keyRing == null) break;
-	    	java.util.Iterator<PGPSecretKey> iterPrivate = keyRing.getSecretKeys();
-			PGPSecretKey key = iterPrivate.next();
+	    	java.util.Iterator<PGPPublicKey> iterPrivate = keyRing.getPublicKeys();
+	    	PGPPublicKey key = iterPrivate.next();
 			ArrayList<String> row = new ArrayList<String>();
 			row.add(String.valueOf(key.getKeyID()));
 			row.add(key.getUserIDs().next());
@@ -53,14 +54,29 @@ public class ChoosePrivateKeyGUI extends JFrame {
 		button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	int column = 0;
-            	int row = jt.getSelectedRow();
-            	String keyId = jt.getModel().getValueAt(row, column).toString();
-            	messageSender.setPrivateKeyID(Long.parseLong(keyId));
-            	messageSenderGUI.setPrivateKeyId(keyId);
-            	ChoosePrivateKeyGUI.this.setVisible(false);
+            	int[] rows = jt.getSelectedRows();
+            	
+            	ArrayList<PGPPublicKey> list = new ArrayList<PGPPublicKey>();            	
+            	for (int row: rows) {
+            		long keyId = Long.parseLong(jt.getModel().getValueAt(row, column).toString());
+            		
+            		PGPPublicKeyRing ring = keyGenerator.findPublicRing(keyId);
+            		Iterator<PGPPublicKey> iterKey = ring.getPublicKeys();
+        			while (iterKey.hasNext()) {
+        				PGPPublicKey key = iterKey.next();
+        				if (key.getKeyID() == keyId) {
+        					list.add(key);
+        					break;
+        				}
+        			}
+            	}
+            	
+            	PGPPublicKey[] keys = new PGPPublicKey[list.size()];
+            	keys = list.toArray(keys);
+            	messageSender.setEncryptionKeys(keys);
+            	ChoosePublicKeyGUI.this.setVisible(false);
             }
-        });
-            
+        });            
 				
 	}
 }
