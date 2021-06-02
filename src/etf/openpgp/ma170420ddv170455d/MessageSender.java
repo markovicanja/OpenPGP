@@ -74,7 +74,9 @@ public class MessageSender {
                 .setProvider("BC"));
         
         for (PGPPublicKey encryptionKey : encryptionKeys) {
-        	encryptionGenerator.addMethod(new JcePublicKeyKeyEncryptionMethodGenerator(encryptionKey).setProvider("BC"));
+        	encryptionGenerator.addMethod(
+        			new JcePublicKeyKeyEncryptionMethodGenerator(encryptionKey)
+        			.setProvider("BC"));
 	    }
         
         OutputStream outputStream = new ByteArrayOutputStream();

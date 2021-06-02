@@ -41,7 +41,7 @@ public class GUI extends JFrame {
 		showKeysGUI = new ShowKeysGUI(path);
 		keyImportExportGUI = new KeyImportExportGUI(path);
 		sendMessageGUI = new MessageSenderGUI(keyGenerator);
-		receiveMessageGUI = new MessageReceiverGUI();
+		receiveMessageGUI = new MessageReceiverGUI(keyGenerator);
 		
 	    frame = this;
 	    frame.setVisible(true);

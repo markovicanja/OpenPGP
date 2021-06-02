@@ -11,6 +11,8 @@ import javax.swing.SwingConstants;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+
 import javax.swing.JTextField;
 import java.awt.Font;
 import javax.swing.JButton;
@@ -18,11 +20,15 @@ import javax.swing.JButton;
 public class MessageReceiverGUI extends JFrame {
 	private JPanel contentPanel;
 	
+	private KeyGenerator keyGenerator;
+	
 	private JTextField messagePathTextField;
 	private JTextField destPathTextField;
 
-	public MessageReceiverGUI() {
+	public MessageReceiverGUI(KeyGenerator keyGenerator) {
 		super("PGP");
+		
+		this.keyGenerator = keyGenerator;
 		
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(600, 300, 600, 526);
@@ -92,7 +98,12 @@ public class MessageReceiverGUI extends JFrame {
 		
 		btnPrimi.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	// TODO
+            	MessageReceiver messageReceiver = new MessageReceiver(keyGenerator);
+            	try {
+					messageReceiver.receiveMessage(messagePathTextField.getText(), destPathTextField.getText());
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
             }
         });		
 	}

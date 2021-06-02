@@ -24,7 +24,7 @@ public class PasswordGUI extends JFrame {
 
 		this.keyGenerator = keyGenerator;
 		
-		setBounds(700, 400, 400, 100);
+		setBounds(700, 400, 400, 150);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		JPanel upper = new JPanel();
@@ -57,6 +57,33 @@ public class PasswordGUI extends JFrame {
 						e1.printStackTrace();
 					}
 				}
+			}
+		});
+		
+	}
+	
+	public PasswordGUI(MessageReceiver messageReceiver) {		
+		setBounds(700, 400, 400, 150);
+		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		
+		JPanel upper = new JPanel();
+		JTextField passwordInput = new JTextField(25);
+		upper.add(passwordInput);
+		
+		JPanel lower = new JPanel();
+		JButton buttonOK = new JButton("OK");
+		lower.add(buttonOK);
+		
+		setLayout(new BorderLayout());
+		
+		add(upper, BorderLayout.NORTH);
+		add(lower, BorderLayout.CENTER);
+		
+		buttonOK.addActionListener(new ActionListener() {	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				messageReceiver.setPassphrase(passwordInput.getText().toCharArray());
+				PasswordGUI.this.setVisible(false);
 			}
 		});
 		
