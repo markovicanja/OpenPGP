@@ -13,16 +13,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JTextField;
 import java.awt.Font;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 
-public class ReceiveMessageGUI extends JFrame {
+public class MessageReceiverGUI extends JFrame {
 	private JPanel contentPanel;
 	
 	private JTextField messagePathTextField;
 	private JTextField destPathTextField;
 
-	public ReceiveMessageGUI() {
+	public MessageReceiverGUI() {
 		super("PGP");
 		
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);

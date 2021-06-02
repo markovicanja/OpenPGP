@@ -62,13 +62,9 @@ public class ChoosePublicKeyGUI extends JFrame {
             		
             		PGPPublicKeyRing ring = keyGenerator.findPublicRing(keyId);
             		Iterator<PGPPublicKey> iterKey = ring.getPublicKeys();
-        			while (iterKey.hasNext()) {
-        				PGPPublicKey key = iterKey.next();
-        				if (key.getKeyID() == keyId) {
-        					list.add(key);
-        					break;
-        				}
-        			}
+        			PGPPublicKey key = iterKey.next();
+        			key = iterKey.next();
+        			list.add(key);
             	}
             	
             	PGPPublicKey[] keys = new PGPPublicKey[list.size()];
