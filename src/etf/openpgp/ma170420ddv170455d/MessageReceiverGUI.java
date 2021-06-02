@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import org.bouncycastle.openpgp.PGPException;
+
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;
 import java.awt.GridBagConstraints;
@@ -101,7 +104,7 @@ public class MessageReceiverGUI extends JFrame {
             	MessageReceiver messageReceiver = new MessageReceiver(keyGenerator);
             	try {
 					messageReceiver.receiveMessage(messagePathTextField.getText(), destPathTextField.getText());
-				} catch (IOException e1) {
+				} catch (IOException | PGPException e1) {
 					e1.printStackTrace();
 				}
             }
