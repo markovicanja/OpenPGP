@@ -11,6 +11,8 @@ import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Iterator;
 import javax.swing.JOptionPane;
+
+import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.bcpg.CompressionAlgorithmTags;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
@@ -29,7 +31,6 @@ import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePGPDataEncryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePublicKeyKeyEncryptionMethodGenerator;
-import org.bouncycastle.util.encoders.Base64;
 
 public class MessageSender {
 
@@ -56,19 +57,19 @@ public class MessageSender {
         return message;
     }
     
-    public byte[] radixConversion(byte[] data) {
-        return Base64.encode(data);
-    }
-
-//    public byte[] armor(byte[] message) throws IOException {
-//    	ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-//        ArmoredOutputStream armoredOutputStream = new ArmoredOutputStream(byteOutputStream);
-//        armoredOutputStream.write(message);
-//        armoredOutputStream.close();
-//        message = byteOutputStream.toByteArray();        
-//        byteOutputStream.close();
-//        return message;
+//    public byte[] radixConversion(byte[] data) {
+//        return Base64.encode(data);
 //    }
+
+    public byte[] radixConversion(byte[] message) throws IOException {
+    	ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+        ArmoredOutputStream armoredOutputStream = new ArmoredOutputStream(byteOutputStream);
+        armoredOutputStream.write(message);
+        armoredOutputStream.close();
+        message = byteOutputStream.toByteArray();        
+        byteOutputStream.close();
+        return message;
+    }
     
     public byte[] encrypt(byte[] data, PGPPublicKey encryptionKey, int algorithm) throws IOException, PGPException {
         PGPEncryptedDataGenerator encryptionGenerator = new PGPEncryptedDataGenerator(
