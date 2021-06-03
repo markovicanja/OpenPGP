@@ -66,18 +66,16 @@ public class MessageSender {
         return message;
     }
     
-    public byte[] encrypt(byte[] data, PGPPublicKey[] encryptionKeys, int algorithm) throws IOException, PGPException {
+    public byte[] encrypt(byte[] data, PGPPublicKey encryptionKey, int algorithm) throws IOException, PGPException {
         PGPEncryptedDataGenerator encryptionGenerator = new PGPEncryptedDataGenerator(
                 new JcePGPDataEncryptorBuilder(algorithm)
                 .setWithIntegrityPacket(true)
                 .setSecureRandom(new SecureRandom())
                 .setProvider("BC"));
-        
-        for (PGPPublicKey encryptionKey : encryptionKeys) {
-        	encryptionGenerator.addMethod(
-        			new JcePublicKeyKeyEncryptionMethodGenerator(encryptionKey)
-        			.setProvider("BC"));
-	    }
+
+        encryptionGenerator.addMethod(
+    			new JcePublicKeyKeyEncryptionMethodGenerator(encryptionKey)
+    			.setProvider("BC"));
         
         OutputStream outputStream = new ByteArrayOutputStream();
         OutputStream encryptedOutputStream = encryptionGenerator.open(outputStream, data.length);
@@ -113,8 +111,15 @@ public class MessageSender {
         return data;
     }
 	
-	public void sendMessage(String messagePath, String destPath, boolean auth, boolean encrypt, int encryptAlgorithm,
+	public void sendMessage(String messagePath, String destPaths, boolean auth, boolean encrypt, int encryptAlgorithm,
 			boolean zip, boolean radix, char[] pass) throws PGPException, IOException, NoSuchProviderException  {	
+    	
+    	String destPath[] = destPaths.split(",");
+    	
+    	if (destPath.length != encryptionKeys.length) {
+    		JOptionPane.showMessageDialog(null, "Broj kljuceva za enkripciju i broj destinacionih fajlova mora da bude jednak!");
+			return;
+    	}
 		
 		message = Files.readAllBytes(Paths.get(messagePath));
     	
@@ -141,16 +146,22 @@ public class MessageSender {
 			}    		
     	}    	
     	
-    	if (auth) message = sign(message, masterKey, privateKey);
-    	if (zip) message = dataCompression(message);
-    	if (encrypt) message = encrypt(message, encryptionKeys, encryptAlgorithm);
-    	if (radix) message = radixConversion(message);
+    	byte[] messageToSend = message;
+    	for (int i = 0; i < encryptionKeys.length; i++) {
+    		message = messageToSend;
+    		
+    		if (auth) message = sign(message, masterKey, privateKey);
+        	if (zip) message = dataCompression(message);
+        	if (encrypt) message = encrypt(message, encryptionKeys[i], encryptAlgorithm);
+        	if (radix) message = radixConversion(message);
+        	
+        	try (FileOutputStream fos = new FileOutputStream(destPath[i])) {
+        		   fos.write(message);
+        	}	
+        	
+        	JOptionPane.showMessageDialog(null, "Poruka je poslata!");
+    	}
     	
-    	try (FileOutputStream fos = new FileOutputStream(destPath)) {
-    		   fos.write(message);
-    	}	
-    	
-    	JOptionPane.showMessageDialog(null, "Poruka je poslata!");
 	}
 	
 	public void setPrivateKeyID(long keyId) {

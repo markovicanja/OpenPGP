@@ -129,8 +129,12 @@ public class MessageReceiver {
     
     public boolean isSigned(byte[] data) throws IOException, PGPException {
     	JcaPGPObjectFactory objectFactory = new JcaPGPObjectFactory(data);
-    	Object o = objectFactory.nextObject();
-    	
+    	Object o = null;
+    	try {
+    		o = objectFactory.nextObject();
+    	} catch(IOException e) {
+    		return false;
+    	}    	
     	if (o instanceof PGPOnePassSignatureList) {
     		PGPOnePassSignatureList signatureList = (PGPOnePassSignatureList) o;
     		PGPOnePassSignature signature = signatureList.get(0);
