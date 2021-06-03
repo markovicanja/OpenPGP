@@ -49,7 +49,7 @@ public class GUI extends JFrame {
 	}
 	
 	private void initialize() {
-		frame.setBounds(600, 300, 600, 450);
+		frame.setBounds(450, 200, 600, 450);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.X_AXIS));
 		

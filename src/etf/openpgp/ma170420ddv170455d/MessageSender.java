@@ -82,13 +82,10 @@ public class MessageSender {
         OutputStream outputStream = new ByteArrayOutputStream();
         OutputStream encryptedOutputStream = encryptionGenerator.open(outputStream, data.length);
         encryptedOutputStream.write(data);
-        data = ((ByteArrayOutputStream) outputStream).toByteArray();
         encryptedOutputStream.close();
-        outputStream.close();
-        return data;
+        return ((ByteArrayOutputStream)outputStream).toByteArray();
     }
     
-    // masterKey je master kljuc
     public byte[] sign(byte[] data, PGPSecretKey masterKey, PGPPrivateKey privateKey) throws PGPException, IOException {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         BCPGOutputStream bcpgos = new BCPGOutputStream(byteStream);        
@@ -112,6 +109,7 @@ public class MessageSender {
         data = byteStream.toByteArray();
         byteStream.close();
         bcpgos.close();
+        outputStream.close();
         return data;
     }
 	

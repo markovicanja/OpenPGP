@@ -34,7 +34,7 @@ public class MessageReceiverGUI extends JFrame {
 		this.keyGenerator = keyGenerator;
 		
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		setBounds(600, 300, 600, 526);
+		setBounds(450, 200, 600, 526);
 		contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPanel);

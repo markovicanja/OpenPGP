@@ -21,10 +21,11 @@ public class PasswordGUI extends JFrame {
 	private KeyGenerator keyGenerator;
 	
 	public PasswordGUI(long id, int action, ShowKeysGUI showKeysGUI, KeyGenerator keyGenerator) {
-
+		super("Lozinka za privatni kljuc");
+		
 		this.keyGenerator = keyGenerator;
 		
-		setBounds(700, 400, 400, 150);
+		setBounds(550, 300, 400, 150);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		JPanel upper = new JPanel();
@@ -62,8 +63,10 @@ public class PasswordGUI extends JFrame {
 		
 	}
 	
-	public PasswordGUI(MessageReceiver messageReceiver) {		
-		setBounds(700, 400, 400, 150);
+	public PasswordGUI(MessageReceiver messageReceiver) {	
+		super("Lozinka za privatni kljuc");
+		
+		setBounds(550, 300, 400, 150);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		
 		JPanel upper = new JPanel();

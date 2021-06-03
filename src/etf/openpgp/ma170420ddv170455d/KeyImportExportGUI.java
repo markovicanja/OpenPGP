@@ -35,7 +35,7 @@ public class KeyImportExportGUI extends JFrame {
 		}
 		
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		setBounds(600, 300, 600, 450);
+		setBounds(450, 200, 600, 450);
 		contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPanel);
