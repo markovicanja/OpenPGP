@@ -1,5 +1,6 @@
 package etf.openpgp.ma170420ddv170455d;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import org.bouncycastle.openpgp.operator.PublicKeyDataDecryptorFactory;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePublicKeyDataDecryptorFactoryBuilder;
+import org.bouncycastle.util.encoders.Base64;
 
 public class MessageReceiver {
 
@@ -48,7 +50,7 @@ public class MessageReceiver {
 	}
 	
 	public byte[] decompressData(byte[] data) throws IOException, PGPException {
-        JcaPGPObjectFactory objectFactory = new JcaPGPObjectFactory(data);
+		JcaPGPObjectFactory objectFactory = new JcaPGPObjectFactory(data);
         Object o = objectFactory.nextObject();
         PGPCompressedData cdata = (PGPCompressedData) o;
         cdata.getDataStream().read(data);
@@ -91,8 +93,7 @@ public class MessageReceiver {
                     new JcePublicKeyDataDecryptorFactoryBuilder()
                     .setProvider("BC")
                     .build(privateKey);
-            byte[] decryptedBytes = null;
-            encryptedData.getDataStream(dataDecryptorFactory).read(decryptedBytes);
+            byte[] decryptedBytes = encryptedData.getDataStream(dataDecryptorFactory).readAllBytes();
             return decryptedBytes;
         }
         throw new Exception("Provided data is not encrypted");
@@ -152,6 +153,8 @@ public class MessageReceiver {
 		}
 
 		// OVO SVE TREBA DA SE ISKOPIRA U continueSending
+		
+ 
 		try {
 			data = decompressData(message);
 			message = data;
@@ -159,9 +162,9 @@ public class MessageReceiver {
 			JOptionPane.showMessageDialog(null, "Dekompresija nije uspela!");
 		}
 		
-		if (signed(message, publicKey)) {
-			message = readSignedMessage(message);
-		}
+//		if (signed(message, publicKey)) {
+//			message = readSignedMessage(message);
+//		}
 
 		try (FileOutputStream fos = new FileOutputStream(dstPath)) {
  		   fos.write(message);
@@ -171,6 +174,8 @@ public class MessageReceiver {
 	}
 	
 	public void continueReceiving() throws Exception {
+		
+		
 		PGPObjectFactory objectFactory = new JcaPGPObjectFactory(message);
 		PGPEncryptedDataList enc = (PGPEncryptedDataList) (objectFactory.nextObject());
 		java.util.Iterator<PGPEncryptedData> it = enc.getEncryptedDataObjects();
@@ -181,6 +186,7 @@ public class MessageReceiver {
         try {
 			java.util.Iterator<PGPSecretKey> iterPriv = keyRing.getSecretKeys();
         	PGPSecretKey secretKey = iterPriv.next();
+        	secretKey = iterPriv.next();
 			privateKey = secretKey.extractPrivateKey(
 					new JcePBESecretKeyDecryptorBuilder()
 					.setProvider("BC")
@@ -191,6 +197,16 @@ public class MessageReceiver {
 		}
          
 		message = decrypt(message, privateKey);
+		
+		// dodao sam ovaj decompress ovde da proverim da nije do njega
+		// mislio sam da ne radi dekompresija ali izgleda da nam ovaj decrypt nije dobar
+		
+//		try {
+//			message = decompressData(message);
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//			JOptionPane.showMessageDialog(null, "Dekompresija nije uspela!");
+//		}
 		
 		try (FileOutputStream fos = new FileOutputStream(dstPath)) {
 		   fos.write(message);
