@@ -1,9 +1,11 @@
 package etf.openpgp.ma170420ddv170455d;
 
+import java.awt.HeadlessException;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
@@ -22,6 +24,7 @@ import org.bouncycastle.openpgp.PGPOnePassSignatureList;
 import org.bouncycastle.openpgp.PGPPrivateKey;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPPublicKeyEncryptedData;
+import org.bouncycastle.openpgp.PGPPublicKeyRing;
 import org.bouncycastle.openpgp.PGPSecretKey;
 import org.bouncycastle.openpgp.PGPSecretKeyRing;
 import org.bouncycastle.openpgp.PGPSignature;
@@ -42,6 +45,8 @@ public class MessageReceiver {
 	private char[] passphrase;
 	
 	private String dstPath;
+	
+	private PGPPublicKey signerPublicKey;
 	
 	public MessageReceiver(KeyGenerator keyGenerator) {
 		this.keyGenerator = keyGenerator;
@@ -92,6 +97,19 @@ public class MessageReceiver {
         return false;
     }
 	
+    public void checkIntegrity(PGPPublicKeyEncryptedData encryptedData) throws HeadlessException, PGPException, IOException {
+		if (encryptedData != null) {
+			if (encryptedData.isIntegrityProtected()) {
+				if (encryptedData.verify()) {
+					System.out.println("Provera integriteta uspesna!");
+				}
+				else {
+					System.out.println("Provera integriteta neuspesna!");
+				}
+			}
+		}
+    }
+    
     public byte[] decrypt(byte[] data, PGPPrivateKey privateKey) throws Exception {
         JcaPGPObjectFactory objectFactory = new JcaPGPObjectFactory(data);
         PGPEncryptedDataList edl = (PGPEncryptedDataList)(objectFactory.nextObject());
@@ -103,34 +121,48 @@ public class MessageReceiver {
                 .build(privateKey);
         InputStream is = encryptedData.getDataStream(dataDecryptorFactory);
         byte[] decryptedBytes = is.readAllBytes();
+        
+        checkIntegrity(encryptedData);
+        
         return decryptedBytes;
     }
     
-    public boolean signed(byte[] pgpSignedData, PGPPublicKey verifyingKey) throws IOException, PGPException {
-        JcaPGPObjectFactory pgpFact = new JcaPGPObjectFactory(pgpSignedData);
-
-        PGPOnePassSignatureList opl = (PGPOnePassSignatureList)pgpFact.nextObject();
-        PGPOnePassSignature ops = opl.get(0);
-
-        PGPLiteralData literalData = (PGPLiteralData)pgpFact.nextObject();
-        InputStream is = literalData.getInputStream();
-
-        ops.init(new JcaPGPContentVerifierBuilderProvider().setProvider("BC"), verifyingKey);
-
-        byte[] data = is.readAllBytes();
-        for(byte i : data) ops.update(i);
-
-        PGPSignatureList sigList = (PGPSignatureList)pgpFact.nextObject();
-        PGPSignature sig = sigList.get(0);
-
-        return ops.verify(sig);
+    public boolean isSigned(byte[] data) throws IOException, PGPException {
+    	JcaPGPObjectFactory objectFactory = new JcaPGPObjectFactory(data);
+    	Object o = objectFactory.nextObject();
+    	
+    	if (o instanceof PGPOnePassSignatureList) {
+    		PGPOnePassSignatureList signatureList = (PGPOnePassSignatureList) o;
+    		PGPOnePassSignature signature = signatureList.get(0);
+			long keyId = signature.getKeyID();			
+			PGPPublicKeyRing ring = keyGenerator.findPublicRing(keyId);
+		    signerPublicKey = ring.getPublicKey(keyId);
+		   
+		    signature.init(new JcaPGPContentVerifierBuilderProvider().setProvider("BC"), signerPublicKey);
+		    
+		    PGPLiteralData literalData = (PGPLiteralData)objectFactory.nextObject();
+		    InputStream is = literalData.getInputStream();
+	    	byte[] allData = is.readAllBytes();
+	    	for(byte i : allData) signature.update(i);
+	    	PGPSignatureList sigList = (PGPSignatureList)objectFactory.nextObject();
+	    	PGPSignature sig = sigList.get(0);
+	    	if (signature.verify(sig)) {
+	    		String author = new String(signerPublicKey.getRawUserIDs().next(), StandardCharsets.UTF_8);
+	    		System.out.println("Uspesna provera potpisa! Autor: " + author);
+	    		return true;
+	    	}
+	    	else {
+	    		System.out.println("Neuspesna provera potpisa...");
+	    		return false;
+	    	}
+    	}
+    	return false;
     }
     
-    public byte[] readSignedMessage(byte[] pgpSignedData) throws IOException {
-        JcaPGPObjectFactory pgpFact = new JcaPGPObjectFactory(pgpSignedData);
-        pgpFact.nextObject();
-        PGPLiteralData literalData = (PGPLiteralData) pgpFact.nextObject();
-
+    public byte[] unsignedMessage(byte[] data) throws IOException {
+        JcaPGPObjectFactory objectFactory = new JcaPGPObjectFactory(data);
+        objectFactory.nextObject();
+        PGPLiteralData literalData = (PGPLiteralData) objectFactory.nextObject();
         return literalData.getInputStream().readAllBytes();
     }
 	
@@ -139,36 +171,28 @@ public class MessageReceiver {
 		byte[] data; 
 		
 		this.dstPath = dstPath;
-	
-		// Treba nekako da se dohvati publicKey
-		PGPPublicKey publicKey = null;
 		
 		try {
 			data = radixDeconversion(message);
 			message = data;
-			System.out.println("Radix");
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Radix64 dekonverzija nije uspela!");
 			return;
 		}
 		
 		if (isEncrypted(message)) {
-			System.out.println("Enkripcija");
 			PasswordGUI passwordGUI = new PasswordGUI(this);
 			passwordGUI.setVisible(true);
 			return;
-		}
-
-		// OVO SVE TREBA DA SE ISKOPIRA U continueSending		
+		}	
  
 		if (isCompressed(message)) {			
 			message = decompressData(message);
-			System.out.println("Dekompresija");
 		} 
 		
-//		if (signed(message, publicKey)) {
-//			message = readSignedMessage(message);
-//		}
+		if (isSigned(message)) {
+			message = unsignedMessage(message);
+		}
 
 		try (FileOutputStream fos = new FileOutputStream(dstPath)) {
  		   fos.write(message);
@@ -202,17 +226,16 @@ public class MessageReceiver {
 		
 		if (isCompressed(message)) {			
 			message = decompressData(message);
-			System.out.println("Dekompresija");
 		} 
 		
-//		if (signed(message, publicKey)) {
-//			message = readSignedMessage(message);
-//		}
-		
+		if (isSigned(message)) {
+			message = unsignedMessage(message);
+		}
+
 		try (FileOutputStream fos = new FileOutputStream(dstPath)) {
-		   fos.write(message);
+ 		   fos.write(message);
 		}	
-	
+ 	
 		JOptionPane.showMessageDialog(null, "Poruka je primljena!");
 	}
 	
@@ -224,17 +247,4 @@ public class MessageReceiver {
 			e.printStackTrace();
 		}
 	}
-/*
- * Ne znam jel trebaju ove metode?
- *  
- *  public static byte[] encodeBase64(byte[] data)
-    {
-        return Base64.encode(data);
-    }
-
-    public static byte[] decodeBase64(byte[] data)
-    {
-        return Base64.decode(data);
-    } 
-*/
 }
