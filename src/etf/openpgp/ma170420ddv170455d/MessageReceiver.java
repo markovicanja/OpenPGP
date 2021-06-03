@@ -53,14 +53,13 @@ public class MessageReceiver {
 		JcaPGPObjectFactory objectFactory = new JcaPGPObjectFactory(data);
         Object o = objectFactory.nextObject();
         PGPCompressedData cdata = (PGPCompressedData) o;
-        cdata.getDataStream().read(data);
-        return data;
+        return cdata.getDataStream().readAllBytes();
     }
 	
     public byte[] radixDeconversion(byte[] data) throws IOException, Exception {
     	ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data);
         try {
-			PGPUtil.getDecoderStream(byteInputStream).read(data);
+			data = PGPUtil.getDecoderStream(byteInputStream).readAllBytes();
 		} catch (IOException e) {
 			throw new Exception("Radix neuspesan");
 		}
@@ -110,8 +109,7 @@ public class MessageReceiver {
 
         ops.init(new JcaPGPContentVerifierBuilderProvider().setProvider("BC"), verifyingKey);
 
-        byte[] data = null;
-        is.read(data);
+        byte[] data = is.readAllBytes();
         for(byte i : data) ops.update(i);
 
         PGPSignatureList sigList = (PGPSignatureList)pgpFact.nextObject();
@@ -125,9 +123,7 @@ public class MessageReceiver {
         pgpFact.nextObject();
         PGPLiteralData literalData = (PGPLiteralData) pgpFact.nextObject();
 
-        byte[] data = null;
-        literalData.getInputStream().read(data);
-        return data;
+        return literalData.getInputStream().readAllBytes();
     }
 	
 	public void receiveMessage(String srcPath, String dstPath) throws IOException, PGPException {
