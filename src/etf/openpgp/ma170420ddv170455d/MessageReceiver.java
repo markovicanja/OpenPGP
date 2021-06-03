@@ -1,7 +1,6 @@
 package etf.openpgp.ma170420ddv170455d;
 
 import java.awt.HeadlessException;
-import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,12 +28,12 @@ import org.bouncycastle.openpgp.PGPSecretKey;
 import org.bouncycastle.openpgp.PGPSecretKeyRing;
 import org.bouncycastle.openpgp.PGPSignature;
 import org.bouncycastle.openpgp.PGPSignatureList;
-import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.bouncycastle.openpgp.operator.PublicKeyDataDecryptorFactory;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePublicKeyDataDecryptorFactoryBuilder;
+import org.bouncycastle.util.encoders.Base64;
 
 public class MessageReceiver {
 
@@ -72,17 +71,21 @@ public class MessageReceiver {
 		}
 		return false;
 	}
+    
+    public byte[] radixDeconversion(byte[] data) throws Exception {
+        return Base64.decode(data);
+    } 
 	
-    public byte[] radixDeconversion(byte[] data) throws IOException, Exception {
-    	ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data);
-        try {
-			data = PGPUtil.getDecoderStream(byteInputStream).readAllBytes();
-		} catch (IOException e) {
-			throw new Exception("Radix neuspesan");
-		}
-        byteInputStream.close();
-        return data;
-    }
+//    public byte[] decoder(byte[] data) throws IOException, Exception {
+//    	ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data);
+//        try {
+//			data = PGPUtil.getDecoderStream(byteInputStream).readAllBytes();
+//		} catch (IOException e) {
+//			throw new Exception("Neuspesno");
+//		}
+//        byteInputStream.close();
+//        return data;
+//    }
     
     public boolean isEncrypted(byte[] data) {
     	JcaPGPObjectFactory objectFactory = new JcaPGPObjectFactory(data);
@@ -172,16 +175,13 @@ public class MessageReceiver {
 	
 	public void receiveMessage(String srcPath, String dstPath) throws IOException, PGPException {
 		message = Files.readAllBytes(Paths.get(srcPath));
-		byte[] data; 
 		
 		this.dstPath = dstPath;
 		
 		try {
-			data = radixDeconversion(message);
-			message = data;
+			message = radixDeconversion(message);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Radix64 dekonverzija nije uspela!");
-			return;
+			message = Files.readAllBytes(Paths.get(srcPath));
 		}
 		
 		if (isEncrypted(message)) {

@@ -11,7 +11,6 @@ import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Iterator;
 import javax.swing.JOptionPane;
-import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.bcpg.CompressionAlgorithmTags;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
@@ -30,6 +29,7 @@ import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePGPDataEncryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePublicKeyKeyEncryptionMethodGenerator;
+import org.bouncycastle.util.encoders.Base64;
 
 public class MessageSender {
 
@@ -55,16 +55,20 @@ public class MessageSender {
     	bOut.close();
         return message;
     }
-
-    public byte[] radixConversion(byte[] message) throws IOException {
-    	ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-        ArmoredOutputStream armoredOutputStream = new ArmoredOutputStream(byteOutputStream);
-        armoredOutputStream.write(message);
-        armoredOutputStream.close();
-        message = byteOutputStream.toByteArray();        
-        byteOutputStream.close();
-        return message;
+    
+    public byte[] radixConversion(byte[] data) {
+        return Base64.encode(data);
     }
+
+//    public byte[] armor(byte[] message) throws IOException {
+//    	ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+//        ArmoredOutputStream armoredOutputStream = new ArmoredOutputStream(byteOutputStream);
+//        armoredOutputStream.write(message);
+//        armoredOutputStream.close();
+//        message = byteOutputStream.toByteArray();        
+//        byteOutputStream.close();
+//        return message;
+//    }
     
     public byte[] encrypt(byte[] data, PGPPublicKey encryptionKey, int algorithm) throws IOException, PGPException {
         PGPEncryptedDataGenerator encryptionGenerator = new PGPEncryptedDataGenerator(
@@ -116,7 +120,7 @@ public class MessageSender {
     	
     	String destPath[] = destPaths.split(",");
     	
-    	if (destPath.length != encryptionKeys.length) {
+    	if (encryptionKeys != null && destPath.length != encryptionKeys.length) {
     		JOptionPane.showMessageDialog(null, "Broj kljuceva za enkripciju i broj destinacionih fajlova mora da bude jednak!");
 			return;
     	}
@@ -147,15 +151,28 @@ public class MessageSender {
     	}    	
     	
     	byte[] messageToSend = message;
-    	for (int i = 0; i < encryptionKeys.length; i++) {
-    		message = messageToSend;
-    		
+    	if (encrypt) {
+    		for (int i = 0; i < encryptionKeys.length; i++) {
+        		message = messageToSend;
+        		
+        		if (auth) message = sign(message, masterKey, privateKey);
+            	if (zip) message = dataCompression(message);
+            	if (encrypt) message = encrypt(message, encryptionKeys[i], encryptAlgorithm);
+            	if (radix) message = radixConversion(message);
+            	
+            	try (FileOutputStream fos = new FileOutputStream(destPath[i])) {
+            		   fos.write(message);
+            	}	
+            	
+            	JOptionPane.showMessageDialog(null, "Poruka je poslata!");
+        	}
+    	}
+    	else {
     		if (auth) message = sign(message, masterKey, privateKey);
         	if (zip) message = dataCompression(message);
-        	if (encrypt) message = encrypt(message, encryptionKeys[i], encryptAlgorithm);
         	if (radix) message = radixConversion(message);
         	
-        	try (FileOutputStream fos = new FileOutputStream(destPath[i])) {
+        	try (FileOutputStream fos = new FileOutputStream(destPath[0])) {
         		   fos.write(message);
         	}	
         	
